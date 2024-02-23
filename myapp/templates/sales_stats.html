@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Statystyki Wydatków Klientów</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        canvas {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goToAdminPage()">Powrót do strony admin</button>
+    <h1>Statystyki Wydatków Klientów- Całościowe</h1>
+    
+    <div style="max-width: 600px;">
+        <canvas id="salesChart" width="600" height="600"></canvas>
+    </div>
+
+    <script>
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for sale in sales %}'{{ sale.customer__name }}',{% endfor %}],
+                datasets: [{
+                    label: 'Łączna kwota wydana przez klienta',
+                    data: [{% for sale in sales %}{{ sale.total_spent }},{% endfor %}],
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false, 
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return value + ' PLN';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        
+        function goToAdminPage() {
+            window.location.href = '/admin'; 
+        }
+    </script>
+</body>
+</html>

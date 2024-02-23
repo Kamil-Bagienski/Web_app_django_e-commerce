@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sklep</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-image: url('https://source.unsplash.com/1920x1080/?shopping');
+            background-size: cover;
+            color: #333;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #007bff;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+
+        .alert-success {
+            color: white;
+            background-color: green !important;
+            border-color: darkgreen;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Sklep TEST</h1>
+        
+        
+        <form action="{% url 'create_order' %}" method="POST" class="rounded shadow-sm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Imię:</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="product_id">Produkt:</label>
+                <select name="product_id" class="form-control" required>
+                    {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }} - Cena: {{ product.price }} zł</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Ilość:</label>
+                <input type="number" name="quantity" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Sposób płatności:</label>
+                <select name="payment_method" class="form-control" required>
+                    <option value="card">Karta</option>
+                    <option value="cod">Pobranie</option>
+                    <option value="paypal">PayPal</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-success">Złóż zamówienie</button>
+        </form>
+
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        <hr class="my-4">
+
+        <h2>Produkty do wyboru:</h2>
+        <ul class="list-unstyled">
+            {% for product in products %}
+                <li>{{ product.name }} - Cena: {{ product.price }} zł</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

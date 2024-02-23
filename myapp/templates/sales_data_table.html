@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statystyki Sprzedaży Produktów - Tabela</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #startDate, #endDate {
+            width: 200px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goToAdminPage()">Powrót do strony admin</button>
+    <h1>Statystyki Sprzedaży Produktów - Tabela</h1>
+
+    <form id="dateForm">
+        <label for="startDate">Data początkowa:</label>
+        <input type="date" id="startDate" name="startDate">
+        
+        <label for="endDate">Data końcowa:</label>
+        <input type="date" id="endDate" name="endDate">
+        
+        <input type="submit" value="Pokaż dane">
+    </form>
+
+    <h2>Dane Sprzedaży Produktów</h2>
+    <table id="salesTable">
+        <thead>
+            <tr>
+                <th>Id Klienta</th>
+                <th>Imię Klienta</th>
+                <th>Nazwa Produktu</th>
+                <th>Ilość</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('dateForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                fetch(`/api/sales-in-date-range/?startDate=${startDate}&endDate=${endDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
+                        tableBody.innerHTML = '';  
+                        
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `<td>${row.customer__id}</td><td>${row.customer__name}</td><td>${row.product__name}</td><td>${row.total_quantity}</td>`;
+                            tableBody.appendChild(tr);
+                        });
+                    });
+            });
+        });
+        function goToAdminPage() {
+            window.location.href = '/admin'; 
+        }
+    </script>
+</body>
+</html>

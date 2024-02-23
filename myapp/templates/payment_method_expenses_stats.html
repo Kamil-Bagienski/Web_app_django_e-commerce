@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statystyki Według Metody Płatności</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        #paymentMethodSelect, #startDate, #endDate {
+            padding: 10px;
+        }
+        canvas {
+            width: 100%;
+            max-width: 600px;
+            hight: 100%;
+            max-height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goToAdminPage()">Powrót do strony admin</button>
+    <h1>Statystyki Według Metody Płatności</h1>
+
+    <div id="controls">
+        <select id="paymentMethodSelect">
+            
+        </select>
+        <input type="date" id="startDate" name="startDate">
+        <input type="date" id="endDate" name="endDate">
+        <button onclick="updateChartWithDates()">Pokaż statystyki</button>
+    </div>
+
+    <canvas id="myChart"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+            const ctx = document.getElementById('myChart').getContext('2d');
+            let myChart = null;
+
+            function createChart(data) {
+                const formattedData = data.map(item => ({
+                    ...item,
+                    date: new Date(item.date).toISOString().split('T')[0]
+                }));
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: formattedData.map(item => item.date),
+                        datasets: [{
+                            label: 'Suma Wydatków (w zł)',
+                            data: formattedData.map(item => item.total_amount),
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateChartWithDates() {
+                const paymentMethodId = paymentMethodSelect.value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+            
+                
+                if (!paymentMethodId || !startDate || !endDate) {
+                    console.error('Wszystkie pola muszą być wypełnione.');
+                    return; 
+                }
+            
+                fetch(`/api/payment-method-stats/?payment_method_id=${paymentMethodId}&start_date=${startDate}&end_date=${endDate}`)
+                    .then(response => response.json())
+                    .then(createChart);
+            }
+
+            function loadPaymentMethods() {
+                fetch('/api/payment-methods/')
+                    .then(response => response.json())
+                    .then(paymentMethods => {
+                        paymentMethods.forEach(method => {
+                            const option = document.createElement('option');
+                            option.value = method.id;
+                            option.textContent = method.name;
+                            paymentMethodSelect.appendChild(option);
+                        });
+
+                        if (paymentMethods.length > 0) {
+                            updateChartWithDates();
+                        }
+                    });
+            }
+
+            paymentMethodSelect.addEventListener('change', updateChartWithDates);
+            document.getElementById('startDate').addEventListener('change', updateChartWithDates);
+            document.getElementById('endDate').addEventListener('change', updateChartWithDates);
+
+            loadPaymentMethods();
+        });
+
+        function goToAdminPage() {
+            window.location.href = '/admin'; 
+        }
+    </script>
+</body>
+</html>

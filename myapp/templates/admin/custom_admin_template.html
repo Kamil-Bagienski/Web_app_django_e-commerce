@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    {{ block.super }}
+
+    <h2>Linki do statystyk</h2>
+    <ul>
+        <li><a href="{% url 'sales-data-table' %}">Tabela sprzedaży produktów</a></li>
+        <li><a href="{% url 'product-sales-stats-view' %}">Wykres sprzedaży produktów</a></li>
+        <li><a href="{% url 'sales_stats' %}">Statystyki Wydatków klientów-całościowe</a></li>
+        <li><a href="{% url 'customer_expenses' %}">Statystyki Wydatków klientów-jednostkowe</a></li>
+        <li><a href="{% url 'payment-method-stats-page' %}">Statystyki metod płatności</a></li>
+    </ul>
+{% endblock %}

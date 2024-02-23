@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statystyki Wydatków Klientów</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        #customerSelect, #startDate, #endDate {
+            padding: 10px;
+        }
+        canvas {
+            width: 100%;
+            max-width: 600px;
+            hight: 100%;
+            max-height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goToAdminPage()">Powrót do strony admin</button>
+    <h1>Statystyki Wydatków Klientów- jednostkowe</h1>
+
+    <div id="controls">
+        <select id="customerSelect">
+            
+        </select>
+        <input type="date" id="startDate" name="startDate">
+        <input type="date" id="endDate" name="endDate">
+        <button onclick="updateChartWithDates()">Pokaż wydatki</button>
+    </div>
+
+    <canvas id="myChart"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const customerSelect = document.getElementById('customerSelect');
+            const ctx = document.getElementById('myChart').getContext('2d');
+            let myChart = null;
+
+            function createChart(data) {
+                const formattedData = data.map(item => {
+                    return {
+                        ...item,
+                        order_date: new Date(item.order_date).toISOString().split('T')[0]
+                    };
+                });
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+                myChart = new Chart(ctx, {
+                    type: 'bar', 
+                    data: {
+                        labels: formattedData.map(item => item.order_date),
+                        datasets: [{
+                            label: 'Wydatki klienta (w zł)',
+                            data: formattedData.map(item => item.total_amount),
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateChartWithDates() {
+                const customerId = customerSelect.value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                fetch(`/api/customer-expenses-stats/?customer_id=${customerId}&start_date=${startDate}&end_date=${endDate}`)
+                    .then(response => response.json())
+                    .then(createChart);
+            }
+
+            function loadCustomers() {
+                fetch('/api/customers/')
+                    .then(response => response.json())
+                    .then(customers => {
+                        customers.forEach(customer => {
+                            const option = document.createElement('option');
+                            option.value = customer.id;
+                            option.textContent = customer.name;
+                            customerSelect.appendChild(option);
+                        });
+
+                        if (customers.length > 0) {
+                            updateChartWithDates();
+                        }
+                    });
+            }
+
+            customerSelect.addEventListener('change', updateChartWithDates);
+            document.getElementById('startDate').addEventListener('change', updateChartWithDates);
+            document.getElementById('endDate').addEventListener('change', updateChartWithDates);
+
+            loadCustomers();
+        });
+
+        function goToAdminPage() {
+            window.location.href = '/admin'; 
+        }
+    </script>
+</body>
+</html>
