@@ -13,7 +13,7 @@ Application Launch:
 1. Python Installation: Visit python.org, download Python for your OS, and install it, adding Python to the PATH environment variable.
 2. Verify Python and pip: Open terminal, check versions with python --version and pip --version.
 3. Django Installation: In terminal, pip install django.
-4. Prepare Django App: Unzip the received Django app (app.zip).
+4. Prepare Django App: Unzip the received Django app (Web_app_django_e-commerce.zip).
 5. Database Migrations: Navigate to the Django project's root where manage.py is, then in terminal: python manage.py makemigrations and python manage.py migrate.
 6. Create Superuser: For admin panel access, python manage.py createsuperuser.
 7. Start Development Server: Run python manage.py runserver.
